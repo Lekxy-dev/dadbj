@@ -6,10 +6,9 @@ import Link from "next/link";
 import MenuItem from "./MenuItem";
 import {signOut} from "next-auth/react"
 import BackDrop from "./BackDrop";
-import { User } from "@prisma/client";
-import {safUser} from "@/types";
+import { safeUser } from "@/types";
 interface UserMenuProps{
-    currentUser: safUser
+    currentUser: safeUser | null
 }
 const UserMenu:React.FC<UserMenuProps> = ({currentUser}) => {
     const [isOpen, setIsOpen] = useState(false); // Correct use of useState

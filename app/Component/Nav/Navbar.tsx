@@ -7,6 +7,7 @@ import UserMenu from "./UserMenu";
 import { getCurrentUser } from "@/actions/getCurrentUser";
 
 
+
 const redressed = Redressed({subsets: ["latin"], weight: ['400']})
 const NavBar = async  () => {
     const currentUser = await getCurrentUser();

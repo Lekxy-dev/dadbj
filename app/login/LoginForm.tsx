@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Heading from "@/app/Component/Heading";
 
@@ -13,10 +13,13 @@ import Button from "@/app/Component/Button";
 import { signIn } from "next-auth/react";
 import { useRouter } from 'next/navigation'; 
 import toast from "react-hot-toast";
+import { safeUser } from "@/types";
+interface LoginFormProps{
+  currentUser: safeUser | null
+}
 
 
-
-const Loginform = () => {
+const Loginform: React.FC<LoginFormProps> = ({currentUser}) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const {register,handleSubmit, formState:{errors}} = useForm<FieldValues>({
@@ -26,6 +29,13 @@ const Loginform = () => {
       }
     })
     const router = useRouter()
+
+    useEffect(() => {
+      if(currentUser){
+        router.push("/Cart");
+        router.refresh();
+      }
+    },[])
     const onsubmit:SubmitHandler<FieldValues> = (data) => {
       setIsLoading(true)
       signIn('credentials', {
@@ -44,6 +54,9 @@ const Loginform = () => {
           toast.error(callback.error)
         }
       })
+    }
+    if(currentUser){
+      return <p className="text-center">Logged in. Redirecting....</p>
     }
     return (
         <>
