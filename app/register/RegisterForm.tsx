@@ -52,7 +52,7 @@ const Registerform: React.FC<RegisterFormProps> = ({ currentUser }) => {
         }).then((callback) => {
           if (callback?.ok) {
             toast.success("Logged in");
-            router.replace('/cart'); // Replaces history
+            router.replace('/Cart'); // Replaces history
           }
           if (callback?.error) {
             toast.error(callback.error);
