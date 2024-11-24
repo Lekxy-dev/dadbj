@@ -61,7 +61,7 @@ const Loginform: React.FC<LoginFormProps> = ({currentUser}) => {
     return (
         <>
          <Heading title="Login to Dsquare"/>
-         <Button  outline label="Continue with Google" icon={AiOutlineGoogle} onclick={() => {}}/>
+         <Button  outline label="Continue with Google" icon={AiOutlineGoogle} onclick={() => {signIn('google')}}/>
          <hr className="bg-slate-300 w-full h-px" />
          <div className="mt-6 w-full space-y-4"> 
       
