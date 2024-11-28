@@ -12,6 +12,7 @@ model Account {
   userId             String  @db.ObjectId
   type               String
   provider           String
+  status            String
   providerAccountId  String  
   refresh_token      String? @db.String
   access_token       String? @db.String
@@ -44,6 +45,7 @@ model Order{
   userId String @db.ObjectId
   amount Float
   currency String
+  status   String
   deliveryStatus String?
   createdDate DateTime @default(now())
   paymentIntentId String @unique
