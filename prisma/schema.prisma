@@ -37,6 +37,8 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   role          Role      @default(USER)
+
+  
   accounts      Account[]
   orders        Order[]
 }
@@ -77,7 +79,9 @@ type Address{
   city String
   country String
   line1 String
-  line2 String
+  line2 String?
+  postal_code String
+  state String
 }
 
 enum Role {

@@ -4,7 +4,7 @@ export const formatprice =
     (
         'en-Us', {
             style:'currency',
-            currency:'USD'
+            currency:'NGN'
         }
     ).format(amount)
 }

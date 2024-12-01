@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 type CartContextType = {
     cartTotalQty: number;
     cartTotalAmount: number;
-    cartPs: CartProductType[];
+    cartPs: CartProductType[] | null;
     handleAddProductToCart: (product: CartProductType) => void;
     handleRemoveProductFromCart: (product: CartProductType) => void;
     handleCartQtyIncrease: (product: CartProductType) => void;
@@ -24,20 +24,21 @@ interface Props {
 export const CartContextProvider = (props: Props) => {
     const [cartTotalQty, setCartTotalQty] = useState(0);
     const [cartTotalAmount, setCartTotalAmount] = useState(0);
-    const [cartPs, setCartProducts] = useState<CartProductType[]>([]); // Set initial value as empty array
+    const [cartPs, setCartProducts] = useState<CartProductType[] | null>(null); 
     const [paymentIntent, setPaymentIntent] = useState<string | null>(null);
 
     useEffect(() => {
-        const cartItems = localStorage.getItem('dSquareCartItem');
-        const cProduct: CartProductType[] = cartItems ? JSON.parse(cartItems) : [];
-        const dsquarePaymentIntent = localStorage.getItem('dsquarePaymentIntent');
-        const paymentIntent: string | null = dsquarePaymentIntent ? JSON.parse(dsquarePaymentIntent) : null;
+        const cartItems: any = localStorage.getItem("dSquareCartItem");
+        const cProduct: CartProductType[] | null = JSON.parse(cartItems); 
+        const dsquarePaymentIntent:any = localStorage.getItem("dsquarePaymentIntent");
+        const paymentIntent: string | null =  JSON.parse(dsquarePaymentIntent);
 
-        setCartProducts(cProduct);
-        setPaymentIntent(paymentIntent);
+        setCartProducts(cProduct); 
+        setPaymentIntent(paymentIntent); 
     }, []);
 
     useEffect(() => {
+        // Update total quantity and amount whenever cartPs changes
         if (cartPs) {
             const { total, qty } = cartPs.reduce(
                 (acc, item) => {
@@ -53,67 +54,68 @@ export const CartContextProvider = (props: Props) => {
         }
     }, [cartPs]);
 
-    const handleCartQtyIncrease = useCallback(
-        (product: CartProductType) => {
-            if (product.quantity === 20) {
-                return toast.error("Opp! Maximum reached");
+    const handleCartQtyIncrease = useCallback((product: CartProductType) => {
+        setCartProducts((prevCart) => {
+            const cart = prevCart ?? [];  // Fallback to empty array if prevCart is null
+            const existingProduct = cart.find((item) => item.id === product.id);
+
+            let updatedCart;
+            if (existingProduct) {
+                updatedCart = cart.map((item) =>
+                    item.id === product.id
+                        ? { ...item, quantity: item.quantity + product.quantity }
+                        : item
+                );
+            } else {
+                updatedCart = [...cart, product];
             }
 
-            if (cartPs) {
-                const updatedCart = [...cartPs];
-                const existingIndex = cartPs.findIndex((item) => item.id === product.id);
-                if (existingIndex > -1) {
-                    updatedCart[existingIndex].quantity += 1;
-                }
-                setCartProducts(updatedCart);
-                localStorage.setItem('dSquareCartItem', JSON.stringify(updatedCart));
-            }
-        },
-        [cartPs]
-    );
+            toast.success("Product added to cart");
+            localStorage.setItem("dSquareCartItem", JSON.stringify(updatedCart));
 
-    const handleCartQtyDecrease = useCallback(
-        (product: CartProductType) => {
-            if (product.quantity === 1) {
-                return toast.error("Opp! Minimum reached");
-            }
+            return updatedCart;
+        });
+    }, []);
 
-            if (cartPs) {
-                const updatedCart = [...cartPs];
-                const existingIndex = cartPs.findIndex((item) => item.id === product.id);
-                if (existingIndex > -1) {
-                    updatedCart[existingIndex].quantity -= 1;
-                }
-                setCartProducts(updatedCart);
-                localStorage.setItem('dSquareCartItem', JSON.stringify(updatedCart));
-            }
-        },
-        [cartPs]
-    );
+    const handleCartQtyDecrease = useCallback((product: CartProductType) => {
+        setCartProducts((prevCart) => {
+            const cart = prevCart ?? [];  // Fallback to empty array if prevCart is null
+            const updatedCart = cart.map((item) =>
+                item.id === product.id
+                    ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
+                    : item
+            );
+
+            toast.success("Product quantity decreased");
+            localStorage.setItem("dSquareCartItem", JSON.stringify(updatedCart)); // Save to localStorage
+
+            return updatedCart;
+        });
+    }, []);
 
     const handleCartClear = useCallback(() => {
-        setCartProducts([]);
-        setCartTotalQty(0);
-        setCartTotalAmount(0); // Reset total amount as well
-        localStorage.setItem('dSquareCartItem', JSON.stringify([])); // Keep an empty array in localStorage
+        setCartProducts(null); 
+        setCartTotalQty(0);    
+        localStorage.setItem("dSquareCartItem", JSON.stringify([])); 
     }, [cartPs]);
 
     const handleAddProductToCart = useCallback((product: CartProductType) => {
         setCartProducts((prevCart) => {
-            const existingProduct = prevCart.find((item) => item.id === product.id);
+            const cart = prevCart ?? []; 
+            const existingProduct = cart.find((item) => item.id === product.id);
             let updatedCart;
             if (existingProduct) {
-                updatedCart = prevCart.map((item) =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + product.quantity } : item
+                updatedCart = cart.map((item) =>
+                    item.id === product.id
+                        ? { ...item, quantity: item.quantity + product.quantity }
+                        : item
                 );
             } else {
-                updatedCart = [...prevCart, product];
+                updatedCart = [...cart, product];
             }
-            toast.success("Product added to cart");
-            localStorage.setItem('dSquareCartItem', JSON.stringify(updatedCart));
 
-            const totalQty = updatedCart.reduce((total, product) => total + product.quantity, 0);
-            setCartTotalQty(totalQty);
+            toast.success("Product added to cart");
+            localStorage.setItem("dSquareCartItem", JSON.stringify(updatedCart)); // Save to localStorage
 
             return updatedCart;
         });
@@ -121,24 +123,23 @@ export const CartContextProvider = (props: Props) => {
 
     const handleRemoveProductFromCart = useCallback((product: CartProductType) => {
         setCartProducts((prevCart) => {
-            const updatedCart = prevCart.filter((item) => item.id !== product.id);
-            toast.success("Product removed from cart");
-            localStorage.setItem('dSquareCartItem', JSON.stringify(updatedCart));
+            const cart = prevCart ?? [];  // Fallback to empty array if prevCart is null
+            const updatedCart = cart.filter((item) => item.id !== product.id);
 
-            const totalQty = updatedCart.reduce((total, product) => total + product.quantity, 0);
-            setCartTotalQty(totalQty);
+            toast.success("Product removed from cart");
+            localStorage.setItem("dSquareCartItem", JSON.stringify(updatedCart)); // Save to localStorage
 
             return updatedCart;
         });
     }, []);
 
-    const handleSetPaymentIntent = useCallback(
-        (val: string | null) => {
-            setPaymentIntent(val);
-            localStorage.setItem("dsquarePaymentIntent", JSON.stringify(val));
-        },
-        []
-    );
+    
+
+
+    const handleSetPaymentIntent =  useCallback((val: string | null ) =>{
+        setPaymentIntent(val);
+        localStorage.setItem("dsquareGadgetPaymentIntent",JSON.stringify(val))
+       },[paymentIntent])
 
     const value = {
         cartTotalQty,

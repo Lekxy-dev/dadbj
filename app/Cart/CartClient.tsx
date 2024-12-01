@@ -6,8 +6,10 @@ import Heading from "../Component/Heading";
 import Button from "../Component/Button";
 import ItemCont from "./ItemContent";
 import { formatprice } from "@/Utils/FormatPrice";
+import { useRouter } from "next/navigation";
 
 const CartClient = () => {
+    
    const {cartTotalAmount,cartPs,handleCartClear} = useCart()
     if (!cartPs || cartPs.length === 0 )
     return ( <div className="flex flex-col items-center">
