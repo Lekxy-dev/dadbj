@@ -65,6 +65,12 @@ const CheckoutClient = () => {
 
   return (
     <div>
+
+{clientSecret && cartPs && !paymentSuccess && (
+        <Elements options={options} stripe={stripePromise}>
+          <CheckoutForm clientSecret={clientSecret} handleSetPaymentSuccess={handleSetPaymentSuccess} />
+        </Elements>
+      )}
       
       {loading && <div className="text-center">Loading Checkout...</div>}
       
@@ -82,11 +88,7 @@ const CheckoutClient = () => {
       )}
       
     
-      {clientSecret && cartPs && !paymentSuccess && (
-        <Elements options={options} stripe={stripePromise}>
-          <CheckoutForm clientSecret={clientSecret} handleSetPaymentSuccess={handleSetPaymentSuccess} />
-        </Elements>
-      )}
+      
     </div>
   );
 };

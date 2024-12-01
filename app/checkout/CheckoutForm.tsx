@@ -14,7 +14,7 @@ interface CheckoutFormProps {
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ clientSecret, handleSetPaymentSuccess }) => {
-  const { cartTotalAmount, handleCartClear, handleSetPaymentIntent } = useCart();
+  const { cartTotalAmount,handleCartClear,handleSetPaymentIntent } = useCart();
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
